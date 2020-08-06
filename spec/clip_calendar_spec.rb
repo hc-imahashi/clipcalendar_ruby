@@ -1,9 +1,75 @@
 RSpec.describe ClipCalendar do
+  require "clip_calendar/version"
+  require 'clipboard'
+  require 'clip_calendar/core'
+
   it "has a version number" do
     expect(ClipCalendar::VERSION).not_to be nil
   end
 
-  it "does something useful" do
-    expect(false).to eq(true)
+  shared_examples "入力に対して期待通りの文字列を返すこと" do |in_array, expected_out|
+    it (in_array.to_s+'の場合') {
+      ARGV.clear
+      ARGV.concat(in_array)
+      clip_calendar= ClipCalendar::Core.new
+      expect(clip_calendar.output).to eq expected_out
+    }
   end
+
+  shared_examples "例外を発生させること" do |in_array, exception|
+    it (in_array.to_s+'の場合') {
+      ARGV.clear
+      ARGV.concat(in_array)
+      expect{ clip_calendar= ClipCalendar::Core.new; clip_calendar.output }.to raise_error exception
+    }
+  end
+
+  describe "課題２−１：既存の実行コードのテストを書く" do
+    describe "正常に動くケース" do
+      context "例に上げているケース" do
+        it_behaves_like "入力に対して期待通りの文字列を返すこと", ['2020-05-18', '2020-05-22'], "2020/05/18(月)\n2020/05/19(火)\n2020/05/20(水)\n2020/05/21(木)\n2020/05/22(金)"
+      end
+      context "月またぎ（3日）" do
+        it_behaves_like "入力に対して期待通りの文字列を返すこと", ['2016-02-28','2016-03-01'], "2016/02/28(日)\n2016/02/29(月)\n2016/03/01(火)"
+      end
+      context "年またぎ（10日）" do
+        it_behaves_like "入力に対して期待通りの文字列を返すこと", ['1999-12-28','2000-01-06'], "1999/12/28(火)\n1999/12/29(水)\n1999/12/30(木)\n1999/12/31(金)\n2000/01/01(土)\n2000/01/02(日)\n2000/01/03(月)\n2000/01/04(火)\n2000/01/05(水)\n2000/01/06(木)"
+      end
+      context "一日しかない" do
+        it_behaves_like "入力に対して期待通りの文字列を返すこと", ['2022-06-30','2022-06-30'], "2022/06/30(木)"
+      end
+      context "終了日が開始日より早い" do
+        it_behaves_like "入力に対して期待通りの文字列を返すこと", ['2002-04-23','2000-01-15'], ""
+      end
+    end
+    describe "エラーになるケース" do
+      context "引数の数" do
+        it "引数がない" do
+          ARGV.clear
+          expect{clip_calendar= ClipCalendar::Core.new}.to raise_error(ClipCalendar::ArgumentNumberError)
+        end
+        context "引数が１つ" do
+          it_behaves_like "例外を発生させること", ['2002-04-23'], ClipCalendar::ArgumentNumberError
+        end
+        context "引数が３つ" do
+          it_behaves_like "例外を発生させること", ['2000-01-15','2002-04-23','2020-07-31'], ClipCalendar::ArgumentNumberError
+        end
+        context "引数が５つ" do
+          it_behaves_like "例外を発生させること", ['2000-01-15','2002-04-23','2020-07-31','2020-8-6','2020-09-24'], ClipCalendar::ArgumentNumberError
+        end
+      end
+      context "引数の型" do
+        context "全角文字" do
+          it_behaves_like "例外を発生させること", ['1984-04-30','全角文字'], ClipCalendar::ArgumentTypeError
+        end
+        context "yyyy年mm月dd日" do
+          it_behaves_like "例外を発生させること", ['2022-06-30','2022年08月01日'], ClipCalendar::ArgumentTypeError
+        end
+        context "2020-02-30" do
+          it_behaves_like "例外を発生させること", ['2020-02-27','2020ｰ2ｰ30'], ClipCalendar::ArgumentTypeError
+        end
+      end
+    end
+  end
+
 end
