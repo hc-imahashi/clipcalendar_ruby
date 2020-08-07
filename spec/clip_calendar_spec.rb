@@ -44,7 +44,7 @@ RSpec.describe ClipCalendar do
     end
     describe "エラーになるケース" do
       context "引数の数" do
-        context "引数が３つ" do
+        context "-fがないのに,引数が３つ" do
           it_behaves_like "例外を発生させること", ['2000-01-15','2002-04-23','2020-07-31'], ClipCalendar::ArgumentNumberError
         end
         context "引数が５つ" do
@@ -123,7 +123,39 @@ RSpec.describe ClipCalendar do
       }
       it_behaves_like "入力に対して期待通りの文字列を返すこと(今年)"
     end
+  end
 
+  describe "課題２−５：オプションで出力フォーマットを指定" do
+    describe "正常ケース" do
+      context "-f MM月dd日" do
+        it_behaves_like "入力に対して期待通りの文字列を返すこと", ['-f',"MM月dd日",'1989-04-03','1989-04-06'], "04月03日\n04月04日\n04月05日\n04月06日"
+      end
+      context "-f %b. %d, %y" do
+        it_behaves_like "入力に対して期待通りの文字列を返すこと", ['-f',"%b.%d,%y",'2020-09-29','2020-10-02'], "Sep.29,20\nSep.30,20\nOct.01,20\nOct.02,20"
+      end
+      context "-f あいうえお" do
+        it_behaves_like "入力に対して期待通りの文字列を返すこと", ['-f',"あいうえお",'2000-01-01','2000-01-05'], "あいうえお\nあいうえお\nあいうえお\nあいうえお\nあいうえお"
+      end
+      context "出力オプション＋年省略" do
+        it_behaves_like "入力に対して期待通りの文字列を返すこと", ['-f',"MM月dd日",'08-11','08-14'], "08月11日\n08月12日\n08月13日\n08月14日"
+        it_behaves_like "入力に対して期待通りの文字列を返すこと", ['-f',"MM月dd日",'12-31','01-01'], ""
+      end
+      context "出力オプション＋終了日省略" do
+        it_behaves_like "入力に対して期待通りの文字列を返すこと", ['-f',"%b.%-d,%y",'2023-11-09'], "Nov.9,23\nNov.10,23\nNov.11,23\nNov.12,23\nNov.13,23\nNov.14,23"
+      end
+      context "出力オプション＋日付省略" do
+        let(:in_array) { ['-f', "%x"] }
+        let(:expected_out) {
+          (Date.today..Date.today+5).map {|d| d.strftime("%m/%d/%y") }.join("\n")
+        }
+        it_behaves_like "入力に対して期待通りの文字列を返すこと(今年)"
+      end
+    end
+    describe "異常ケース" do
+      context "-fのみは、ArgumentNumberError" do
+        it_behaves_like "例外を発生させること", ['-f'], ClipCalendar::ArgumentNumberError
+      end
+    end
   end
 
 end
