@@ -13,13 +13,8 @@ module ClipCalendar
       # 引数チェック
       raise ArgumentNumberError  unless  ARGV.count <= 2
       begin
-        start_date_str= ARGV&.first || Date.today.strftime('%Y-%m-%d')
-        start_date= DateFormat.parse(start_date_str)
-        if ARGV.count > 1
-          end_date= DateFormat.parse(ARGV[1])
-        else
-          end_date = start_date + 5
-        end
+        start_date= DateFormat.parse(ARGV[0] || Date.today.strftime('%Y-%m-%d'))
+        end_date= DateFormat.parse(ARGV[1] || (start_date+5).strftime('%Y-%m-%d'))
         @dates= start_date..end_date
       rescue ArgumentError
         raise ArgumentTypeError
