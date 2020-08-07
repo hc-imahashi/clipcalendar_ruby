@@ -48,9 +48,6 @@ RSpec.describe ClipCalendar do
           ARGV.clear
           expect{clip_calendar= ClipCalendar::Core.new}.to raise_error(ClipCalendar::ArgumentNumberError)
         end
-        context "引数が１つ" do
-          it_behaves_like "例外を発生させること", ['2002-04-23'], ClipCalendar::ArgumentNumberError
-        end
         context "引数が３つ" do
           it_behaves_like "例外を発生させること", ['2000-01-15','2002-04-23','2020-07-31'], ClipCalendar::ArgumentNumberError
         end
@@ -72,18 +69,19 @@ RSpec.describe ClipCalendar do
     end
   end
 
-  describe "課題２−２：年の省略" do
-    shared_examples "入力に対して期待通りの文字列を返すこと(今年)" do
-      it {
-        ARGV.clear
-        ARGV.concat(in_array)
-        clip_calendar= ClipCalendar::Core.new
-        expect(clip_calendar.output).to eq expected_out
-      }
-    end
+  let(:thisyear) { Date.today.year }
+  let(:dw) { ["日", "月", "火", "水", "木", "金", "土"] }
+  shared_examples "入力に対して期待通りの文字列を返すこと(今年)" do
+    it {
+      ARGV.clear
+      ARGV.concat(in_array)
+      clip_calendar= ClipCalendar::Core.new
+      expect(clip_calendar.output).to eq expected_out
+    }
+  end
 
-    let(:thisyear) { Date.today.year }
-    let(:dw) { ["日", "月", "火", "水", "木", "金", "土"] }
+  describe "課題２−２：年の省略" do
+
     context "開始日も終了日も年がない" do
       let(:in_array) { ['03-05','03-07'] }
       let(:expected_out) {
@@ -105,7 +103,21 @@ RSpec.describe ClipCalendar do
       }
       it_behaves_like "入力に対して期待通りの文字列を返すこと(今年)"
     end
-
   end
+
+  describe "課題２−３：終了日の省略" do
+    context "終了日がない" do
+      it_behaves_like "入力に対して期待通りの文字列を返すこと", ['1999-12-28'], "1999/12/28(火)\n1999/12/29(水)\n1999/12/30(木)\n1999/12/31(金)\n2000/01/01(土)\n2000/01/02(日)"
+    end
+    context "終了日がない、開始日の年省略" do
+      let(:in_array) { ['01-25'] }
+      let(:expected_out) {
+        (Date.new(thisyear,1,25)..Date.new(thisyear,1,30)).map {|d| d.strftime("%Y/%m/%d(#{dw[d.wday]})") }.join("\n")
+      }
+      it_behaves_like "入力に対して期待通りの文字列を返すこと(今年)"
+
+    end
+  end
+
 
 end
