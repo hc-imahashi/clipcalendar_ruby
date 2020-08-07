@@ -72,4 +72,40 @@ RSpec.describe ClipCalendar do
     end
   end
 
+  describe "課題２−２：年の省略" do
+    shared_examples "入力に対して期待通りの文字列を返すこと(今年)" do
+      it {
+        ARGV.clear
+        ARGV.concat(in_array)
+        clip_calendar= ClipCalendar::Core.new
+        expect(clip_calendar.output).to eq expected_out
+      }
+    end
+
+    let(:thisyear) { Date.today.year }
+    let(:dw) { ["日", "月", "火", "水", "木", "金", "土"] }
+    context "開始日も終了日も年がない" do
+      let(:in_array) { ['03-05','03-07'] }
+      let(:expected_out) {
+        (Date.new(thisyear,3,5)..Date.new(thisyear,3,7)).map {|d| d.strftime("%Y/%m/%d(#{dw[d.wday]})") }.join("\n")
+      }
+      it_behaves_like "入力に対して期待通りの文字列を返すこと(今年)"
+    end
+    context "開始日だけ年がない" do
+      let(:in_array) { ['08-30',thisyear.to_s+'-09-03'] }
+      let(:expected_out) {
+        (Date.new(thisyear,8,30)..Date.new(thisyear,9,3)).map {|d| d.strftime("%Y/%m/%d(#{dw[d.wday]})") }.join("\n")
+      }
+      it_behaves_like "入力に対して期待通りの文字列を返すこと(今年)"
+    end
+    context "終了日だけ年がない" do
+      let(:in_array) { [thisyear.to_s+'-01-18','01-25'] }
+      let(:expected_out) {
+        (Date.new(thisyear,1,18)..Date.new(thisyear,1,25)).map {|d| d.strftime("%Y/%m/%d(#{dw[d.wday]})") }.join("\n")
+      }
+      it_behaves_like "入力に対して期待通りの文字列を返すこと(今年)"
+    end
+
+  end
+
 end
