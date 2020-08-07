@@ -16,14 +16,17 @@ module ClipCalendar
     end
 
     def to_s(output_format)
-      format= output_format&.dup
-      format&.gsub!('MM','%m')
-      format&.gsub!('dd','%d')
-      format&.gsub!('YY','%y')
-      format&.gsub!('YYYY','%Y')
+      if output_format.nil?
+        format= "%Y/%m/%d(#{dw[wday]})"
+      else
+        format= output_format.gsub('MM','%m')
+        format&.gsub!('dd','%d')
+        format&.gsub!('YYYY','%Y')
+        format&.gsub!('YY','%y')
+      end
 
       dw = ["日", "月", "火", "水", "木", "金", "土"]
-      self.strftime(format || "%Y/%m/%d(#{dw[wday]})" )
+      self.strftime(format)
     end
 
   end

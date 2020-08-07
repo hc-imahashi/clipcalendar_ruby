@@ -7,10 +7,10 @@ module ClipCalendar
   begin
     clip_calendar= ClipCalendar::Core.new
   rescue ArgumentNumberError
-    puts "### Wrong numbers of input (expected: 2, actual: #{ARGV.count})"
+    puts "### Wrong numbers of input"
     exit (1)
   rescue ArgumentTypeError
-    puts '### invalid argment type: '
+    puts '### invalid argment type '
     exit (1)
   end
 
