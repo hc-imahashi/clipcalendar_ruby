@@ -44,10 +44,6 @@ RSpec.describe ClipCalendar do
     end
     describe "エラーになるケース" do
       context "引数の数" do
-        it "引数がない" do
-          ARGV.clear
-          expect{clip_calendar= ClipCalendar::Core.new}.to raise_error(ClipCalendar::ArgumentNumberError)
-        end
         context "引数が３つ" do
           it_behaves_like "例外を発生させること", ['2000-01-15','2002-04-23','2020-07-31'], ClipCalendar::ArgumentNumberError
         end
@@ -119,5 +115,15 @@ RSpec.describe ClipCalendar do
     end
   end
 
+  describe "課題２−４：日付の省略" do
+    context "引数がない" do
+      let(:in_array) { [] }
+      let(:expected_out) {
+        (Date.today..Date.today+5).map {|d| d.strftime("%Y/%m/%d(#{dw[d.wday]})") }.join("\n")
+      }
+      it_behaves_like "入力に対して期待通りの文字列を返すこと(今年)"
+    end
+
+  end
 
 end
