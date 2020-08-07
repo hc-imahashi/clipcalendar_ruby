@@ -11,9 +11,10 @@ module ClipCalendar
     def initialize
 
       # 引数チェック
-      raise ArgumentNumberError  unless [1,2].include? ARGV.count
+      raise ArgumentNumberError  unless  ARGV.count <= 2
       begin
-        start_date= DateFormat.parse(ARGV[0])
+        start_date_str= ARGV&.first || Date.today.strftime('%Y-%m-%d')
+        start_date= DateFormat.parse(start_date_str)
         if ARGV.count > 1
           end_date= DateFormat.parse(ARGV[1])
         else
